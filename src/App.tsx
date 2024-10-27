@@ -1,21 +1,19 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useEffect, useState } from "react";
-import { faker } from "@faker-js/faker";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
   UserButton,
+  useUser,
 } from "@clerk/clerk-react";
-
-// For demo purposes. In a real app, you'd have real user data.
-const NAME = faker.person.firstName();
 
 export default function App() {
   const messages = useQuery(api.messages.list);
   const sendMessage = useMutation(api.messages.send);
   const likeMessage = useMutation(api.messages.like);
+  const { user } = useUser();
 
   const [newMessageText, setNewMessageText] = useState("");
 
@@ -31,7 +29,7 @@ export default function App() {
       <header>
         <h1>Convex Chat</h1>
         <p>
-          Connected as <strong>{NAME}</strong>
+          Connected as <strong>{user?.fullName}</strong>
         </p>
         <SignedOut>
           <SignInButton />
@@ -44,7 +42,7 @@ export default function App() {
         {messages?.map((message) => (
           <article
             key={message._id}
-            className={message.author === NAME ? "message-mine" : ""}
+            className={message.author === user?.fullName ? "message-mine" : ""}
           >
             <div>{message.author}</div>
 
@@ -52,7 +50,12 @@ export default function App() {
               {message.body}
               <button
                 onClick={async () => {
-                  await likeMessage({ liker: NAME, messageId: message._id });
+                  if (user?.fullName) {
+                    await likeMessage({
+                      liker: user?.fullName,
+                      messageId: message._id,
+                    });
+                  }
                 }}
               >
                 🤍
@@ -64,8 +67,13 @@ export default function App() {
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            await sendMessage({ body: newMessageText, author: NAME });
-            setNewMessageText("");
+            if (user?.fullName) {
+              await sendMessage({
+                body: newMessageText,
+                author: user?.fullName,
+              });
+              setNewMessageText("");
+            }
           }}
         >
           <input
