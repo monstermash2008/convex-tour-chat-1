@@ -2,6 +2,12 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
 // For demo purposes. In a real app, you'd have real user data.
 const NAME = faker.person.firstName();
@@ -27,46 +33,57 @@ export default function App() {
         <p>
           Connected as <strong>{NAME}</strong>
         </p>
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
       </header>
-      {messages?.map((message) => (
-        <article
-          key={message._id}
-          className={message.author === NAME ? "message-mine" : ""}
-        >
-          <div>{message.author}</div>
+      <SignedIn>
+        {messages?.map((message) => (
+          <article
+            key={message._id}
+            className={message.author === NAME ? "message-mine" : ""}
+          >
+            <div>{message.author}</div>
 
-          <p>
-            {message.body}
-            <button
-              onClick={async () => {
-                await likeMessage({ liker: NAME, messageId: message._id });
-              }}
-            >
-              🤍
-              {message.likes > 0 && <span>{message.likes}</span>}
-            </button>
-          </p>
-        </article>
-      ))}
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          await sendMessage({ body: newMessageText, author: NAME });
-          setNewMessageText("");
-        }}
-      >
-        <input
-          value={newMessageText}
-          onChange={async (e) => {
-            const text = e.target.value;
-            setNewMessageText(text);
+            <p>
+              {message.body}
+              <button
+                onClick={async () => {
+                  await likeMessage({ liker: NAME, messageId: message._id });
+                }}
+              >
+                🤍
+                {message.likes > 0 && <span>{message.likes}</span>}
+              </button>
+            </p>
+          </article>
+        ))}
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await sendMessage({ body: newMessageText, author: NAME });
+            setNewMessageText("");
           }}
-          placeholder="Write a message…"
-        />
-        <button type="submit" disabled={!newMessageText}>
-          Send
-        </button>
-      </form>
+        >
+          <input
+            value={newMessageText}
+            onChange={async (e) => {
+              const text = e.target.value;
+              setNewMessageText(text);
+            }}
+            placeholder="Write a message…"
+          />
+          <button type="submit" disabled={!newMessageText}>
+            Send
+          </button>
+        </form>
+      </SignedIn>
+      <SignedOut>
+        <h1 className="sign-in">Please sign in</h1>
+      </SignedOut>
     </main>
   );
 }

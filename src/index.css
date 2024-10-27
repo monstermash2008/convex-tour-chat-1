@@ -57,6 +57,12 @@ button {
   cursor: pointer;
 }
 
+.sign-in {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .chat header {
   position: fixed;
   top: 0;

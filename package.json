@@ -9,6 +9,7 @@
     "predev": "convex dev --run init --until-success"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.13.1",
     "@faker-js/faker": "^8.0.2",
     "convex": "1.17.0",
     "prettier": "3.2.5",
